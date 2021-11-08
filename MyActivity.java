@@ -1,6 +1,4 @@
-public class DownloadActivity extends AppCompatActivity {
-
-    private static final String MISSIONS_FRAGMENT_TAG = "fragment_tag";
+public class MyActivity extends AppCompatActivity {
 
     private int layoutId;
     private NativeAd globalNativeAd;
