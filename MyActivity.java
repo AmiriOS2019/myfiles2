@@ -1,206 +1,125 @@
-public class MyActivity extends AppCompatActivity {
+/*
+ * Copyright 2020. Huawei Technologies Co., Ltd. All rights reserved.
 
-    private int layoutId;
-    private NativeAd globalNativeAd;
-    private ScrollView adScrollView;
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+ */
+
+package com.huawei.nativeadexample;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ScrollView;
+import android.widget.RadioButton;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import com.huawei.hms.ads.AdListener;
+import com.huawei.hms.ads.AdParam;
+import com.huawei.hms.ads.HwAds;
+import com.huawei.hms.ads.VideoOperator;
+import com.huawei.hms.ads.nativead.DislikeAdListener;
+import com.huawei.hms.ads.nativead.MediaView;
+import com.huawei.hms.ads.nativead.NativeAd;
+import com.huawei.hms.ads.nativead.NativeAdConfiguration;
+import com.huawei.hms.ads.nativead.NativeAdLoader;
+import com.huawei.hms.ads.nativead.NativeView;
+
+public class MainActivity extends AppCompatActivity {
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState) {
-
+    protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
 
-      	........
-      	........
+        // Initialize the HUAWEI Ads SDK.
+        HwAds.init(this);
 
-        adScrollView = findViewById(R.id.scroll_view_ad);
-        loadAd(getAdId());
-
-
-		........
-      	........
-        
-    }
-
-    ........
-    ........
-
-    @Override
-    public void onBackPressed() {
-
-        if (isTaskRoot()) {
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-            finish();
-        }else {
-            finish();
-        }
-
-    }
-
-    ///////NATIVE Ads
-    private VideoOperator.VideoLifecycleListener videoLifecycleListener = new VideoOperator.VideoLifecycleListener() {
-        @Override
-        public void onVideoStart() {
-            updateStatus(getString(R.string.status_play_start), false);
-        }
-
-        @Override
-        public void onVideoPlay() {
-            updateStatus(getString(R.string.status_playing), false);
-        }
-
-        @Override
-        public void onVideoEnd() {
-            // If a video exists, load a new native ad only after video playback is complete.
-            updateStatus(getString(R.string.status_play_end), true);
-        }
-    };
-
-    /**
-     * Register and populate a native ad asset view.
-     *
-     * @param nativeAd  Native ad object that contains ad assets.
-     * @param nativeView Native ad view to be populated.
-     */
-    private void initNativeAdView(NativeAd nativeAd, NativeView nativeView) {
-        // Register a native ad asset view.
-        nativeView.setTitleView(nativeView.findViewById(R.id.ad_title));
-        nativeView.setMediaView((MediaView) nativeView.findViewById(R.id.ad_media));
-        nativeView.setAdSourceView(nativeView.findViewById(R.id.ad_source));
-        nativeView.setCallToActionView(nativeView.findViewById(R.id.ad_call_to_action));
-
-        // Populate the native ad asset view. The native ad must contain the title and media assets.
-        ((TextView) nativeView.getTitleView()).setText(nativeAd.getTitle());
-        nativeView.getMediaView().setMediaContent(nativeAd.getMediaContent());
-
-        if (null != nativeAd.getAdSource()) {
-            ((TextView) nativeView.getAdSourceView()).setText(nativeAd.getAdSource());
-        }
-        nativeView.getAdSourceView().setVisibility(null != nativeAd.getAdSource() ? View.VISIBLE : View.INVISIBLE);
-
-        if (null != nativeAd.getCallToAction()) {
-            ((Button) nativeView.getCallToActionView()).setText(nativeAd.getCallToAction());
-        }
-        nativeView.getCallToActionView().setVisibility(null != nativeAd.getCallToAction() ? View.VISIBLE : View.INVISIBLE);
-
-        // Obtain a video controller.
-        VideoOperator videoOperator = nativeAd.getVideoOperator();
-
-        // Check whether a native ad contains video assets.
-        if (videoOperator.hasVideo()) {
-            // Add a video lifecycle event listener.
-            videoOperator.setVideoLifecycleListener(videoLifecycleListener);
-        }
-
-        // Register a native ad object.
-        nativeView.setNativeAd(nativeAd);
-    }
-
-    /**
-     * Update the message and obtain the button status.
-     *
-     * @param text             Message.
-     * @param loadBtnEnabled Obtain the button status.
-     */
-    private void updateStatus(String text, boolean loadBtnEnabled) {
-
-        // Meedi MSG for start and finish loading
-        if (null != text) {
-            //    Toast.makeText(getActivity(), text, Toast.LENGTH_SHORT).show();
-        }
-
-    }
-
-
-    private String getAdId() {
-        String adId;
-
-        adId = getString(R.string.imgad_native);
-        layoutId = R.layout.native_small_template;
-
-
-        return adId;
-    }
-
-    /**
-     * Load a native ad.
-     *
-     * @param adId Ad unit ID.
-     */
-    private void loadAd(String adId) {
-
-        updateStatus(null, false);
-
-        NativeAdLoader.Builder builder = new NativeAdLoader.Builder(this, adId);
-
+        ////////////////////// 1 : Build a NativeAdLoader
+        NativeAdLoader.Builder builder = new NativeAdLoader.Builder(this, "testb65czjivt9");
         builder.setNativeAdLoadedListener(new NativeAd.NativeAdLoadedListener() {
+
             @Override
             public void onNativeAdLoaded(NativeAd nativeAd) {
-                // Called when an ad is successfully loaded.
-                updateStatus(getString(R.string.status_load_ad_success), true);
 
-                // Display a native ad.
-                showNativeAd(nativeAd);
+                // Called when an ad is loaded successfully.
+                Toast.makeText(MainActivity.this, "Ad loading state: loaded successfully.", Toast.LENGTH_SHORT).show();
 
-                nativeAd.setDislikeAdListener(new DislikeAdListener() {
-                    @Override
-                    public void onAdDisliked() {
-                        // Called when an ad is closed.
-                        updateStatus(getString(R.string.ad_is_closed), true);
-                    }
-                });
+                // Destroy the original native ad.
+                if (null != nativeAd) {
+                    nativeAd.destroy();
+                }
+
+                // Obtain NativeView.
+                NativeView nativeView = (NativeView) getLayoutInflater().inflate(R.layout.native_small_template, null);
+
+                // Register and populate the native ad asset views.
+                initNativeAdView(nativeAd, nativeView);
+
+                // Add NativeView to the UI.
+                ScrollView adScrollView = findViewById(R.id.scroll_view_ad);
+                adScrollView.removeAllViews();
+                adScrollView.addView(nativeView);
+
             }
         }).setAdListener(new AdListener() {
             @Override
             public void onAdFailed(int errorCode) {
                 // Called when an ad fails to be loaded.
-                updateStatus(getString(R.string.status_load_ad_fail) + errorCode, true);
+                Toast.makeText(MainActivity.this, "Ad loading state: failed to be loaded. Error code: "+errorCode, Toast.LENGTH_SHORT).show();
             }
+
         });
+        NativeAdLoader nativeAdLoader = builder.build();
 
-        NativeAdConfiguration adConfiguration = new NativeAdConfiguration.Builder()
-                // Set custom attributes.
-                .setChoicesPosition(NativeAdConfiguration.ChoicesPosition.BOTTOM_RIGHT)
-                .build();
-
-        NativeAdLoader nativeAdLoader = builder.setNativeAdOptions(adConfiguration).build();
-
+        /////////////////// 2 : Load an Ad
         nativeAdLoader.loadAd(new AdParam.Builder().build());
 
-        updateStatus(getString(R.string.status_ad_loading), false);
     }
 
-    /**
-     * Display the native ad.
-     *
-     * @param nativeAd Native ad object that contains ad assets.
-     */
-    private void showNativeAd(NativeAd nativeAd) {
-        // Destroy the original native ad.
-        if (null != globalNativeAd) {
-            globalNativeAd.destroy();
+    ////////////////// 3 : Register and populate the assetView
+
+    private void initNativeAdView(NativeAd nativeAd, NativeView nativeView) {
+
+        // Register and populate the title view.
+        nativeView.setTitleView(nativeView.findViewById(R.id.ad_title));
+        ((TextView) nativeView.getTitleView()).setText(nativeAd.getTitle());
+        // Register and populate the multimedia view.
+        nativeView.setMediaView((MediaView) nativeView.findViewById(R.id.ad_media));
+        nativeView.getMediaView().setMediaContent(nativeAd.getMediaContent());
+        // Register and populate other asset views.
+        nativeView.setAdSourceView(nativeView.findViewById(R.id.ad_source));
+        nativeView.setCallToActionView(nativeView.findViewById(R.id.ad_call_to_action));
+        if (null != nativeAd.getAdSource()) {
+            ((TextView) nativeView.getAdSourceView()).setText(nativeAd.getAdSource());
         }
-        globalNativeAd = nativeAd;
+        nativeView.getAdSourceView()
+                .setVisibility(null != nativeAd.getAdSource() ? View.VISIBLE : View.INVISIBLE);
+        if (null != nativeAd.getCallToAction()) {
+            ((Button) nativeView.getCallToActionView()).setText(nativeAd.getCallToAction());
+        }
+        nativeView.getCallToActionView()
+                .setVisibility(null != nativeAd.getCallToAction() ? View.VISIBLE : View.INVISIBLE);
 
-        // Create NativeView.
-        NativeView nativeView = (NativeView) getLayoutInflater().inflate(layoutId, null);
-
-        // Populate NativeView.
-        initNativeAdView(globalNativeAd, nativeView);
-
-        // Add NativeView to the app UI.
-        adScrollView.removeAllViews();
-        adScrollView.addView(nativeView);
+        // Register the native ad object.
+        nativeView.setNativeAd(nativeAd);
     }
+
 
     @Override
-    public void onDestroy() {
-
-        if (null != globalNativeAd) {
-            globalNativeAd.destroy();
-        }
-
+    protected void onDestroy() {
         super.onDestroy();
-
     }
 }
