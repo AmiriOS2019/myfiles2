@@ -70,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
                
                // Destroy the original native ad.
                nativeAd.destroy();
+               Log.v("testtest"," value of nativeAd = "+nativeAd); // nativeAd = com.huawei.hms.ads.bm@a19cc2f ??
 
             }
         }).setAdListener(new AdListener() {
