@@ -57,11 +57,6 @@ public class MainActivity extends AppCompatActivity {
                 // Called when an ad is loaded successfully.
                 Toast.makeText(MainActivity.this, "Ad loading state: loaded successfully.", Toast.LENGTH_SHORT).show();
 
-                // Destroy the original native ad.
-                if (null != nativeAd) {
-                    nativeAd.destroy();
-                }
-
                 // Obtain NativeView.
                 NativeView nativeView = (NativeView) getLayoutInflater().inflate(R.layout.native_small_template, null);
 
@@ -72,6 +67,9 @@ public class MainActivity extends AppCompatActivity {
                 ScrollView adScrollView = findViewById(R.id.scroll_view_ad);
                 adScrollView.removeAllViews();
                 adScrollView.addView(nativeView);
+               
+               // Destroy the original native ad.
+               nativeAd.destroy();
 
             }
         }).setAdListener(new AdListener() {
